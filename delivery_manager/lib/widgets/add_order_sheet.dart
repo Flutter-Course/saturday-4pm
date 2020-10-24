@@ -1,54 +1,222 @@
+import 'package:delivery_manager/models/order.dart';
+import 'package:delivery_manager/widgets/bottom_sheet_item_title.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AddOrderSheet extends StatefulWidget {
   final List<String> deliveryMen;
-  AddOrderSheet(this.deliveryMen);
+  final Function addOrder;
+  AddOrderSheet(this.deliveryMen, this.addOrder);
   @override
   _AddOrderSheetState createState() => _AddOrderSheetState();
 }
 
 class _AddOrderSheetState extends State<AddOrderSheet> {
   String selectedDeliveryMan;
+  DateTime selectedDate;
+  TextEditingController priceController;
   @override
   void initState() {
     super.initState();
     selectedDeliveryMan = widget.deliveryMen[0];
+    selectedDate = DateTime.now();
+    priceController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    priceController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Theme.of(context).accentColor,
       width: double.infinity,
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16),
-            color: Theme.of(context).primaryColor,
-            child: Text(
-              'Let\'s add an order',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(16),
+              color: Theme.of(context).primaryColor,
+              child: Text(
+                'Let\'s add an order',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          DropdownButton(
-            value: selectedDeliveryMan,
-            items: widget.deliveryMen.map((e) {
-              return DropdownMenuItem(
-                child: Text(e),
-                value: e,
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedDeliveryMan = value;
-              });
-            },
-          )
-        ],
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BottomSheetItemTitle('Who\'ll deliver?'),
+                  Card(
+                    elevation: 5,
+                    color: Colors.blue[100],
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                          isExpanded: true,
+                          value: selectedDeliveryMan,
+                          items: widget.deliveryMen.map((e) {
+                            return DropdownMenuItem(
+                              child: Text(e),
+                              value: e,
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedDeliveryMan = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  BottomSheetItemTitle('When\'ll be delivered?'),
+                  Row(
+                    children: [
+                      RaisedButton(
+                        child: Text(
+                          DateFormat('EEEE, dd/MM/yyyy').format(selectedDate),
+                        ),
+                        color: Colors.blue[100],
+                        onPressed: () async {
+                          DateTime pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime.now().subtract(
+                              Duration(days: 7),
+                            ),
+                            lastDate: DateTime.now().add(
+                              Duration(days: 90),
+                            ),
+                          );
+                          if (pickedDate != null) {
+                            setState(() {
+                              selectedDate = DateTime(
+                                  pickedDate.year,
+                                  pickedDate.month,
+                                  pickedDate.day,
+                                  selectedDate.hour,
+                                  selectedDate.minute);
+                            });
+                          }
+                        },
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 10),
+                        child: Text('at'),
+                      ),
+                      RaisedButton(
+                        child: Text('4:15 PM'),
+                        color: Colors.blue[100],
+                        onPressed: () async {
+                          TimeOfDay pickedTime = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay.now(),
+                          );
+
+                          if (pickedTime != null) {
+                            setState(() {
+                              selectedDate = DateTime(
+                                selectedDate.year,
+                                selectedDate.month,
+                                selectedDate.day,
+                                pickedTime.hour,
+                                pickedTime.minute,
+                              );
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  BottomSheetItemTitle('What\'s the price?'),
+                  Card(
+                    color: Colors.blue[100],
+                    elevation: 5,
+                    child: TextField(
+                      controller: priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                        border: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        focusedErrorBorder: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 5),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: RaisedButton(
+                        color: Theme.of(context).primaryColor,
+                        child: Text(
+                          'Add order',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                        onPressed: () {
+                          try {
+                            double price = double.parse(priceController.text);
+                            if (price < 0) {
+                              throw 'Invalid price';
+                            }
+
+                            String key =
+                                DateFormat('yyyyMMdd').format(selectedDate);
+                            Order order = Order(
+                              deliveryMan: selectedDeliveryMan,
+                              orderDate: selectedDate,
+                              price: price,
+                            );
+                            widget.addOrder(key, order);
+                          } catch (error) {
+                            print(error);
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Invalid price'),
+                                  content: Text('Please enter valid price.'),
+                                  actions: [
+                                    FlatButton(
+                                      child: Text('Ok'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

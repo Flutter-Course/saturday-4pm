@@ -13,6 +13,8 @@ import 'package:intl/intl.dart';
 import 'package:sticky_headers/sticky_headers.dart';
 
 class HomeScreen extends StatefulWidget {
+  final Function toggleTheme;
+  HomeScreen(this.toggleTheme);
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -25,12 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
       SplayTreeMap<String, Map<String, dynamic>>((String a, String b) {
     return -a.compareTo(b);
   });
+  DateTime selectedDate;
+  SplayTreeSet<Order> selectedOrders;
+  bool isDark;
   @override
   void initState() {
     super.initState();
+    isDark = false;
+    selectedDate = DateTime.now();
     final ordersList = List.generate(12, (index) {
       return Order(
-        id: index,
         deliveryMan: deliveryMen[Random().nextInt(3)],
         price: Random().nextDouble() * 500,
         orderDate: DateTime.now().subtract(
@@ -55,6 +61,36 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       orders[key]['list'].add(element);
     });
+
+    String key = DateFormat('yyyyMMdd').format(selectedDate);
+    if (orders.containsKey(key)) {
+      selectedOrders = orders[key]['list'];
+    } else {
+      selectedOrders = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void addOrder(String key, Order order) {
+    setState(() {
+      Navigator.of(context).pop();
+      if (orders.containsKey(key)) {
+        orders[key]['list'].add(order);
+      } else {
+        orders[key] = Map<String, dynamic>();
+        orders[key]['date'] =
+            DateFormat('EEEE, dd/MM/yyyy').format(order.orderDate);
+        orders[key]['list'] = SplayTreeSet<Order>((Order a, Order b) {
+          return -a.orderDate.compareTo(b.orderDate);
+        });
+        orders[key]['list'].add(order);
+      }
+    });
   }
 
   void removeOrder(String key, Order order) {
@@ -66,9 +102,22 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void changeSelectedDate(DateTime date) {
+    setState(() {
+      selectedDate = date;
+      String key = DateFormat('yyyyMMdd').format(selectedDate);
+      if (orders.containsKey(key)) {
+        selectedOrders = orders[key]['list'];
+      } else {
+        selectedOrders = null;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).accentColor,
       body: Stack(
         children: [
           BackgroundContainer(),
@@ -78,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   HomeScreenTitle(),
-                  Chart(),
+                  Chart(selectedDate, changeSelectedDate, selectedOrders),
                   Expanded(
                     child: NotificationListener<ScrollUpdateNotification>(
                       onNotification: (notification) {
@@ -144,6 +193,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller.jumpTo(0.0);
                 },
               ),
+            Spacer(),
+            Switch(
+              value: isDark,
+              onChanged: (value) {
+                setState(() {
+                  isDark = value;
+                });
+                widget.toggleTheme();
+              },
+            ),
             FloatingActionButton(
               backgroundColor: Theme.of(context).primaryColor,
               child: Icon(
@@ -153,8 +212,9 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 showModalBottomSheet(
                   context: context,
+                  isScrollControlled: true,
                   builder: (BuildContext context) {
-                    return AddOrderSheet(deliveryMen);
+                    return AddOrderSheet(deliveryMen, addOrder);
                   },
                 );
               },
