@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:page_indicator/page_indicator.dart';
-import 'package:roovies/helpers/dummy_data.dart';
+import 'package:provider/provider.dart';
+import 'package:roovies/providers/movies_provider.dart';
 
 class NowPlaying extends StatelessWidget {
   @override
@@ -24,7 +25,9 @@ class NowPlaying extends StatelessWidget {
                   height: height,
                   width: width,
                   child: Image.network(
-                    DummyData.nowPlaying[index]['poster_url'],
+                    Provider.of<MoviesProvider>(context)
+                        .nowPlaying[index]
+                        .backPosterUrl,
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -62,7 +65,9 @@ class NowPlaying extends StatelessWidget {
                   child: Container(
                     width: width * 0.5,
                     child: Text(
-                      DummyData.nowPlaying[index]['movie_name'],
+                      Provider.of<MoviesProvider>(context)
+                          .nowPlaying[index]
+                          .title,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                       style: TextStyle(

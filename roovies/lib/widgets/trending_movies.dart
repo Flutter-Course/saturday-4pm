@@ -13,7 +13,7 @@ class TrendingMovies extends StatelessWidget {
             'Trending Movies',
             style: Theme.of(context).textTheme.headline6,
           ),
-          MoviesList(),
+          MoviesList.byTrending(),
         ],
       ),
     );
