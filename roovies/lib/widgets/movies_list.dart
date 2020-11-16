@@ -35,11 +35,12 @@ class _MoviesListState extends State<MoviesList> {
         done = await Provider.of<MoviesProvider>(context, listen: false)
             .fetchTrendingMovies();
       }
-
-      setState(() {
-        successful = done;
-        firstRun = false;
-      });
+      if (mounted) {
+        setState(() {
+          successful = done;
+          firstRun = false;
+        });
+      }
     }
   }
 
@@ -61,6 +62,9 @@ class _MoviesListState extends State<MoviesList> {
                             .moviesByGenre[index]
                         : Provider.of<MoviesProvider>(context)
                             .trendingMovies[index];
+
+                    bool isFav = Provider.of<MoviesProvider>(context)
+                        .isFavorite(movie.id);
                     return Container(
                       padding: EdgeInsets.all(5),
                       child: GestureDetector(
@@ -69,64 +73,98 @@ class _MoviesListState extends State<MoviesList> {
                               MovieDetailsScreen.routeName,
                               arguments: movie);
                         },
-                        child: Column(
+                        child: Stack(
                           children: [
-                            Expanded(
-                              child: Image.network(
-                                movie.posterUrl,
-                                fit: BoxFit.cover,
-                              ),
-                              flex: 7,
-                            ),
-                            Expanded(
-                              child: Center(
-                                child: Text(
-                                  movie.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.white,
+                            Column(
+                              children: [
+                                Expanded(
+                                  child: Image.network(
+                                    movie.posterUrl,
+                                    fit: BoxFit.cover,
                                   ),
+                                  flex: 7,
                                 ),
-                              ),
-                              flex: 2,
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    FittedBox(
-                                      child: Text(
-                                        '${movie.rating}',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
+                                Expanded(
+                                  child: Center(
+                                    child: Text(
+                                      movie.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  flex: 2,
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        FittedBox(
+                                          child: Text(
+                                            '${movie.rating}',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        FittedBox(
+                                          child: RatingBar(
+                                            initialRating: movie.rating / 2,
+                                            allowHalfRating: true,
+                                            itemCount: 5,
+                                            itemPadding: EdgeInsets.all(4),
+                                            itemBuilder: (context, index) {
+                                              return Icon(
+                                                Icons.star,
+                                                color: Colors.amber,
+                                              );
+                                            },
+                                            ignoreGestures: true,
+                                            onRatingUpdate: null,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    FittedBox(
-                                      child: RatingBar(
-                                        initialRating: movie.rating / 2,
-                                        allowHalfRating: true,
-                                        itemCount: 5,
-                                        itemPadding: EdgeInsets.all(4),
-                                        itemBuilder: (context, index) {
-                                          return Icon(
-                                            Icons.star,
-                                            color: Colors.amber,
-                                          );
-                                        },
-                                        ignoreGestures: true,
-                                        onRatingUpdate: null,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
+                                  flex: 1,
                                 ),
-                              ),
-                              flex: 1,
+                              ],
                             ),
+                            Positioned(
+                                right: 10,
+                                top: 5,
+                                child: InkWell(
+                                  onTap: () {
+                                    Provider.of<MoviesProvider>(context,
+                                            listen: false)
+                                        .toggleFavoriteStatus(movie);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(7),
+                                    decoration: BoxDecoration(
+                                      gradient: RadialGradient(
+                                        colors: [
+                                          Theme.of(context).primaryColor,
+                                          Theme.of(context)
+                                              .primaryColor
+                                              .withOpacity(0),
+                                        ],
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      (isFav)
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: Theme.of(context).accentColor,
+                                    ),
+                                  ),
+                                )),
                           ],
                         ),
                       ),

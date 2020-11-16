@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:roovies/models/movie.dart';
 import 'package:roovies/models/movie_details.dart';
 import 'package:roovies/providers/movies_provider.dart';
+import 'package:roovies/screens/video_screen.dart';
 import 'package:roovies/widgets/genres_list.dart';
 import 'package:roovies/widgets/movie_info.dart';
 import 'package:roovies/widgets/movie_overview.dart';
@@ -20,6 +21,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   bool firstRun, successful;
   MovieDetails movieDetails;
   Movie movie;
+  String videoKey;
   @override
   void initState() {
     super.initState();
@@ -32,19 +34,27 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     super.didChangeDependencies();
     if (firstRun) {
       movie = ModalRoute.of(context).settings.arguments as Movie;
-      MovieDetails tmp =
-          await Provider.of<MoviesProvider>(context, listen: false)
-              .fetchMovieDetailsById(movie.id);
 
-      setState(() {
-        if (tmp != null) {
-          successful = true;
-          movieDetails = tmp;
-        } else {
-          successful = false;
-        }
-        firstRun = false;
-      });
+      List responses = await Future.wait(
+        [
+          Provider.of<MoviesProvider>(context, listen: false)
+              .fetchMovieDetailsById(movie.id),
+          Provider.of<MoviesProvider>(context, listen: false)
+              .fetchVideoById(movie.id)
+        ],
+      );
+      if (mounted) {
+        setState(() {
+          if (!responses.any((element) => element == null)) {
+            successful = true;
+            movieDetails = responses[0];
+            videoKey = responses[1];
+          } else {
+            successful = false;
+          }
+          firstRun = false;
+        });
+      }
     }
   }
 
@@ -60,7 +70,15 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   expandedHeight: MediaQuery.of(context).size.height * 0.4,
                   floatingPosition: FloatingPosition(right: 15),
                   floatingWidget: FloatingActionButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return VideoScreen(videoKey);
+                          },
+                        ),
+                      );
+                    },
                     child: Icon(
                       Icons.play_arrow,
                     ),

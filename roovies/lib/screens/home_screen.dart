@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:roovies/providers/genres_provider.dart';
 import 'package:roovies/providers/movies_provider.dart';
 import 'package:roovies/providers/persons_provider.dart';
+import 'package:roovies/providers/user_provider.dart';
+import 'package:roovies/screens/authentication_screen.dart';
 import 'package:roovies/widgets/movies_by_genre.dart';
 import 'package:roovies/widgets/now_playing.dart';
 import 'package:roovies/widgets/tending_persond.dart';
@@ -54,7 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () {
+              Provider.of<UserProvider>(context, listen: false)
+                  .removeUserData();
+              Navigator.of(context)
+                  .pushReplacementNamed(AuthenticationScreen.routeName);
+            },
           )
         ],
       ),
