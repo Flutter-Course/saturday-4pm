@@ -64,4 +64,16 @@ class UserProvider with ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> refreshTokenIfNecessary() async {
+    try {
+      if (DateTime.now().isAfter(currentUser.expiryDate)) {
+        currentUser = await FirebaseHandler.instance.refreshToken(currentUser);
+        await saveUserData();
+      }
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 }

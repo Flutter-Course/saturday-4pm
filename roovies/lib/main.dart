@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roovies/helpers/constants.dart';
-import 'package:roovies/models/user.dart';
 import 'package:roovies/providers/genres_provider.dart';
 import 'package:roovies/providers/movies_provider.dart';
 import 'package:roovies/providers/persons_provider.dart';

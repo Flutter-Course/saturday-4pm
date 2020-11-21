@@ -3,7 +3,10 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:roovies/helpers/dummy_data.dart';
 import 'package:roovies/models/movie.dart';
+import 'package:roovies/models/user.dart';
 import 'package:roovies/providers/movies_provider.dart';
+import 'package:roovies/providers/user_provider.dart';
+import 'package:roovies/screens/authentication_screen.dart';
 import 'package:roovies/screens/movie_details_screen.dart';
 
 class MoviesList extends StatefulWidget {
@@ -140,10 +143,39 @@ class _MoviesListState extends State<MoviesList> {
                                 right: 10,
                                 top: 5,
                                 child: InkWell(
-                                  onTap: () {
-                                    Provider.of<MoviesProvider>(context,
-                                            listen: false)
-                                        .toggleFavoriteStatus(movie);
+                                  onTap: () async {
+                                    bool done = await context
+                                        .read<UserProvider>()
+                                        .refreshTokenIfNecessary();
+                                    if (done) {
+                                      User user = context
+                                          .read<UserProvider>()
+                                          .currentUser;
+                                      Provider.of<MoviesProvider>(context,
+                                              listen: false)
+                                          .toggleFavoriteStatus(movie, user);
+                                    } else {
+                                      await showDialog(
+                                          context: context,
+                                          child: AlertDialog(
+                                            title: Text('Error has occurred'),
+                                            content:
+                                                Text('Please sin in again.'),
+                                            actions: [
+                                              FlatButton(
+                                                  child: Text('Ok'),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  }),
+                                            ],
+                                          ));
+                                      await context
+                                          .read<UserProvider>()
+                                          .removeUserData();
+                                      Navigator.of(context)
+                                          .pushReplacementNamed(
+                                              AuthenticationScreen.routeName);
+                                    }
                                   },
                                   child: Container(
                                     padding: EdgeInsets.all(7),

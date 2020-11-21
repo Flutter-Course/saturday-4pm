@@ -4,6 +4,7 @@ import 'package:roovies/models/firebase_handler.dart';
 import 'package:roovies/models/movie.dart';
 import 'package:roovies/models/movie_details.dart';
 import 'package:roovies/models/tmdb_handler.dart';
+import 'package:roovies/models/user.dart';
 
 class MoviesProvider with ChangeNotifier {
   List<Movie> nowPlaying;
@@ -53,15 +54,15 @@ class MoviesProvider with ChangeNotifier {
     }
   }
 
-  void toggleFavoriteStatus(Movie movie) async {
+  void toggleFavoriteStatus(Movie movie, User user) async {
     try {
       if (isFavorite(movie.id)) {
-        await FirebaseHandler.instance.deleteFavorite(movie);
+        await FirebaseHandler.instance.deleteFavorite(movie, user);
         favorites.removeWhere((element) {
           return element.id == movie.id;
         });
       } else {
-        await FirebaseHandler.instance.addFavorite(movie);
+        await FirebaseHandler.instance.addFavorite(movie, user);
         favorites.add(movie);
       }
 
@@ -73,5 +74,14 @@ class MoviesProvider with ChangeNotifier {
 
   bool isFavorite(int movieId) {
     return favorites.any((element) => element.id == movieId);
+  }
+
+  Future<bool> fetchFavorites(User user) async {
+    try {
+      favorites = await FirebaseHandler.instance.getFavorites(user);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
