@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_shop/screens/home_screen.dart';
+import 'package:my_shop/providers/user_provider.dart';
 import 'package:my_shop/widgets/auth_screen_widgets/auth_title.dart';
+import 'package:provider/provider.dart';
+import 'package:my_shop/screens/transit_screen.dart';
 
 class AuthForm extends StatefulWidget {
   final Function toggleResetPassword;
@@ -44,67 +43,38 @@ class _AuthFormState extends State<AuthForm> {
 
   void validateThenLogin() async {
     if (form.currentState.validate()) {
-      try {
-        setState(() {
-          loading = true;
-        });
-        await FirebaseAuth.instance
-            .signInWithEmailAndPassword(email: email, password: password);
-        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-      } on FirebaseAuthException catch (e) {
-        setState(() {
-          loading = false;
-        });
-        switch (e.code) {
-          case 'invalid-email':
-            showError('Invalid email or password.');
-            break;
-          case 'wrong-password':
-            showError('Invalid email or password.');
-            break;
-          case 'user-disabled':
-            showError('This user has been disabled');
-            break;
-          default:
-            showError('No user with this email address.');
-        }
-      } on SocketException {
+      setState(() {
+        loading = true;
+      });
+      String error = await Provider.of<UserProvider>(context, listen: false)
+          .login(email, password);
+
+      if (error == null) {
+        Navigator.of(context).pushReplacementNamed(TransitScreen.routeName);
+      } else {
         setState(() {
           loading = false;
         });
-        showError('Network error.');
+        showError(error);
       }
     }
   }
 
   void validateThenRegister() async {
     if (form.currentState.validate()) {
-      try {
-        setState(() {
-          loading = true;
-        });
-        await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
-        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-      } on FirebaseAuthException catch (e) {
-        setState(() {
-          loading = false;
-        });
-        switch (e.code) {
-          case 'email-already-in-use':
-            showError('This email is already in use.');
-            break;
-          case 'invalid-email':
-            showError('This email is invalid.');
-            break;
-          default:
-            showError('Weak password.');
-        }
-      } on SocketException {
+      setState(() {
+        loading = true;
+      });
+      String error = await Provider.of<UserProvider>(context, listen: false)
+          .register(email, password);
+
+      if (error == null) {
+        Navigator.of(context).pushReplacementNamed(TransitScreen.routeName);
+      } else {
         setState(() {
           loading = false;
         });
-        showError('Network error.');
+        showError(error);
       }
     }
   }

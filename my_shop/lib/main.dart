@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:my_shop/providers/user_provider.dart';
 import 'package:my_shop/screens/Auth_screen.dart';
-import 'package:my_shop/screens/collecting_data.dart';
 import 'package:my_shop/screens/home_screen.dart';
 import 'package:my_shop/screens/splash_screen.dart';
+import 'package:my_shop/screens/transit_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,32 +17,35 @@ class MyApp extends StatelessWidget {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'MyShop',
-      theme: ThemeData(
-        primaryColor: Colors.white,
-        accentColor: Colors.black,
-        fontFamily: 'MontserratAlternates',
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: FutureBuilder(
-          future: _initialization,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SplashScreen();
-            } else {
-              if (FirebaseAuth.instance.currentUser != null) {
-                print(FirebaseAuth.instance.currentUser.email);
-                return CollectingData();
+    return ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+      child: MaterialApp(
+        title: 'MyShop',
+        theme: ThemeData(
+          primaryColor: Colors.white,
+          accentColor: Colors.black,
+          fontFamily: 'MontserratAlternates',
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: FutureBuilder(
+            future: _initialization,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SplashScreen();
               } else {
-                return AuthScreen();
+                if (FirebaseAuth.instance.currentUser != null) {
+                  return TransitScreen();
+                } else {
+                  return AuthScreen();
+                }
               }
-            }
-          }),
-      routes: {
-        HomeScreen.routeName: (context) => HomeScreen(),
-        AuthScreen.routeName: (context) => AuthScreen(),
-      },
+            }),
+        routes: {
+          HomeScreen.routeName: (context) => HomeScreen(),
+          AuthScreen.routeName: (context) => AuthScreen(),
+          TransitScreen.routeName: (context) => TransitScreen(),
+        },
+      ),
     );
   }
 }

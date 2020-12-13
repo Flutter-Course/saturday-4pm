@@ -1,7 +1,8 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_shop/providers/user_provider.dart';
 import 'package:my_shop/widgets/auth_screen_widgets/auth_title.dart';
+import 'package:provider/provider.dart';
 
 class AuthResetPassword extends StatefulWidget {
   final Function toggleResetPassword;
@@ -32,23 +33,19 @@ class _AuthResetPasswordState extends State<AuthResetPassword> {
 
   void resetPassword() async {
     if (form.currentState.validate()) {
-      try {
-        setState(() {
-          loading = true;
-        });
-        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      setState(() {
+        loading = true;
+      });
+      String error = await Provider.of<UserProvider>(context, listen: false)
+          .resetPassword(email);
+      if (error == null) {
         Scaffold.of(context).showSnackBar(SnackBar(
           content: Text('Email has been sent'),
           backgroundColor: Colors.green[900],
         ));
-      } catch (e) {
-        print(e);
-        showError('Error has occurred');
+      } else {
+        showError(error);
       }
-
-      setState(() {
-        loading = false;
-      });
     }
   }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_shop/widgets/auth_screen_widgets/auth_background.dart';
 import 'package:my_shop/widgets/auth_screen_widgets/auth_form.dart';
 import 'package:my_shop/widgets/auth_screen_widgets/auth_reset_password.dart';
-import 'package:my_shop/widgets/auth_screen_widgets/auth_title.dart';
 
 class AuthScreen extends StatefulWidget {
   static const routeName = '/auth-screen';
