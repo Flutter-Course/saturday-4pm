@@ -5,21 +5,23 @@ import 'package:flutter/material.dart';
 class ImageFrame extends StatelessWidget {
   final File imageFile;
   final String imageUrl;
-  ImageFrame.fromFile(this.imageFile) : this.imageUrl = null;
-  ImageFrame.fromNetwork(this.imageUrl) : this.imageFile = null;
+  final double scale;
+  ImageFrame.fromFile(this.imageFile, [this.scale = 1]) : this.imageUrl = null;
+  ImageFrame.fromNetwork(this.imageUrl, [this.scale = 1])
+      : this.imageFile = null;
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
       backgroundColor: Colors.black,
-      radius: 80.1,
+      radius: 80.1 * scale,
       child: CircleAvatar(
         backgroundColor: Colors.white,
-        radius: 80,
+        radius: 80 * scale,
         child: CircleAvatar(
-          radius: 70,
+          radius: 70 * scale,
           backgroundColor: Colors.black,
           child: CircleAvatar(
-            radius: 70 - 0.1,
+            radius: 70 - 0.1 * scale,
             backgroundColor: Colors.grey,
             child: (imageFile == null && imageUrl == null)
                 ? Icon(

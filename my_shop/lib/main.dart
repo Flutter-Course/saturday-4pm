@@ -3,7 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_shop/providers/user_provider.dart';
 import 'package:my_shop/screens/Auth_screen.dart';
+import 'package:my_shop/screens/add_product_screen.dart';
 import 'package:my_shop/screens/home_screen.dart';
+import 'package:my_shop/screens/products_screen.dart';
 import 'package:my_shop/screens/splash_screen.dart';
 import 'package:my_shop/screens/transit_screen.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +24,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'MyShop',
         theme: ThemeData(
+          appBarTheme: AppBarTheme(
+            centerTitle: true,
+          ),
           primaryColor: Colors.white,
           accentColor: Colors.black,
           fontFamily: 'MontserratAlternates',
@@ -44,6 +49,8 @@ class MyApp extends StatelessWidget {
           HomeScreen.routeName: (context) => HomeScreen(),
           AuthScreen.routeName: (context) => AuthScreen(),
           TransitScreen.routeName: (context) => TransitScreen(),
+          ProductsScreen.routeName: (context) => ProductsScreen(),
+          AddProductScreen.routeName: (context) => AddProductScreen(),
         },
       ),
     );

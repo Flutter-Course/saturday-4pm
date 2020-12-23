@@ -5,10 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:my_shop/models/customer.dart';
 import 'package:my_shop/models/user.dart' as myApp;
+import 'package:my_shop/models/vendor.dart';
 
 class UserProvider with ChangeNotifier {
-  var currentUser;
+  myApp.User currentUser;
   Future<String> login(String email, String password) async {
     try {
       await FirebaseAuth.instance
@@ -73,6 +75,7 @@ class UserProvider with ChangeNotifier {
       String url = await ref.getDownloadURL();
       await FirebaseFirestore.instance.collection('users').doc(userId).set(
         {
+          'type': 'customer',
           'userName': userName,
           'email': email,
           'mobileNumber': mobileNumber,
@@ -88,6 +91,31 @@ class UserProvider with ChangeNotifier {
     }
   }
 
+  Future<bool> switchAccountType() async {
+    try {
+      if (currentUser is Customer) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.userId)
+            .update({'type': 'vendor'});
+        currentUser = Vendor.fromCustomer(currentUser);
+      } else {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.userId)
+            .update({'type': 'customer'});
+        currentUser = Customer.fromVendor(currentUser);
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  bool get isCustomer => currentUser is Customer;
+
   Future<bool> isProfileComplete() async {
     try {
       String userId = FirebaseAuth.instance.currentUser.uid;
@@ -97,7 +125,12 @@ class UserProvider with ChangeNotifier {
           .doc(userId)
           .get();
       if (document.exists) {
-        currentUser = myApp.User.fromFirestore(userId, document);
+        if (document['type'] == 'customer') {
+          currentUser = Customer.formFirestore(userId, document);
+        } else {
+          currentUser = Vendor.formFirestore(userId, document);
+        }
+        await currentUser.init();
         return true;
       } else {
         return false;
