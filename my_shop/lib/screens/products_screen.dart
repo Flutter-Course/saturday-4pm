@@ -4,6 +4,7 @@ import 'package:my_shop/models/vendor.dart';
 import 'package:my_shop/providers/user_provider.dart';
 import 'package:my_shop/screens/add_product_screen.dart';
 import 'package:my_shop/widgets/misc/my_drawer.dart';
+import 'package:my_shop/widgets/misc/product_item.dart';
 import 'package:provider/provider.dart';
 
 class ProductsScreen extends StatelessWidget {
@@ -20,9 +21,9 @@ class ProductsScreen extends StatelessWidget {
       body: StaggeredGridView.countBuilder(
         padding: EdgeInsets.all(16),
         crossAxisCount: 2,
-        mainAxisSpacing: 5,
+        mainAxisSpacing: 10,
         itemCount: products.length + 1,
-        crossAxisSpacing: 5,
+        crossAxisSpacing: 10,
         itemBuilder: (context, index) {
           if (index == 0) {
             return InkWell(
@@ -59,9 +60,7 @@ class ProductsScreen extends StatelessWidget {
               ),
             );
           } else {
-            return Container(
-              color: Colors.green,
-            );
+            return ProductItem(products[index - 1]);
           }
         },
         staggeredTileBuilder: (index) {

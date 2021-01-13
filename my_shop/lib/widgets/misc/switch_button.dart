@@ -26,6 +26,12 @@ class _SwitchButtonState extends State<SwitchButton>
   }
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     bool isCustomer = Provider.of<UserProvider>(context).isCustomer;
     return InkWell(

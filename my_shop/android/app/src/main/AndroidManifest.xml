@@ -10,7 +10,7 @@
         android:label="my_shop"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyCmbmJ2EK-g4m54auin7UzjxpDFMyDYw8o"/>
+            android:value="AIzaSyB_nisNq7qXP89mcnmvrKwTUk_MTiOMkD4"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

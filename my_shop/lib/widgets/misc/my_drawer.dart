@@ -33,30 +33,30 @@ class MyDrawer extends StatelessWidget {
                     SizedBox(
                       height: 10,
                     ),
-                    Text(
-                      user.userName,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(
+                        user.userName,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      subtitle: FittedBox(
+                        child: Text(
                           user.email,
                           style: TextStyle(color: Colors.white),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.exit_to_app,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            FirebaseAuth.instance.signOut();
-                            Navigator.of(context)
-                                .pushReplacementNamed(AuthScreen.routeName);
-                          },
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(
+                          Icons.exit_to_app,
+                          color: Colors.white,
                         ),
-                      ],
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut();
+                          Navigator.of(context)
+                              .pushReplacementNamed(AuthScreen.routeName);
+                        },
+                      ),
                     ),
                   ],
                 ),

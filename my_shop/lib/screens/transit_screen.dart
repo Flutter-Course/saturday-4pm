@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:my_shop/providers/user_provider.dart';
-import 'package:my_shop/screens/collecting_data.dart';
+import 'package:my_shop/screens/collecting_data_screen.dart';
 import 'package:my_shop/screens/home_screen.dart';
+import 'package:my_shop/screens/products_screen.dart';
 import 'package:my_shop/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 class TransitScreen extends StatelessWidget {
-  static const routeName = '/tranist';
+  static const routeName = '/transit';
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -16,9 +17,10 @@ class TransitScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SplashScreen();
         } else if (snapshot.data == true) {
-          return HomeScreen();
+          bool isCustomer = Provider.of<UserProvider>(context).isCustomer;
+          return isCustomer ? HomeScreen() : ProductsScreen();
         } else {
-          return CollectingData();
+          return CollectingDataScreen();
         }
       },
     );

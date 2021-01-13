@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:my_shop/screens/products_screen.dart';
+//import 'package:my_shop/screens/products_screen.dart';
 import 'package:my_shop/widgets/misc/drawer_item.dart';
 import 'package:my_shop/widgets/misc/switch_button.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,8 +14,8 @@ class VendorDrawer extends StatelessWidget {
           'Products',
           FontAwesomeIcons.productHunt,
           () {
-            Navigator.of(context)
-                .pushReplacementNamed(ProductsScreen.routeName);
+//            Navigator.of(context)
+//                .pushReplacementNamed(ProductsScreen.routeName);
           },
         ),
         DrawerItem(

@@ -1,42 +1,52 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Product {
-  String _id, _title, _gender, _age, _category, _vendorId, _date, _description;
+  String _title, _description, _forWho, _category, _id, _date, _vendorId;
   double _price;
   bool _available;
-  List<String> _photos;
+  List<String> _photosUrls;
 
-  bool get available => this._available;
+  bool get available => _available;
 
-  String get id => this._id;
+  String get title => _title;
 
-  String get description => this._description;
+  get description => _description;
 
-  String get title => this._title;
+  double get price => _price;
 
-  String get gender => this._gender;
+  get vendorId => _vendorId;
 
-  String get age => this._age;
+  get date => _date;
 
-  String get category => this._category;
+  get id => _id;
 
-  String get vendorId => this._vendorId;
+  get category => _category;
 
-  String get date => this._date;
+  get forWho => _forWho;
 
-  double get price => this._price;
+  List<String> get photosUrls => [..._photosUrls];
 
-  List<String> get photos => this._photos;
+  Product(
+      this._title,
+      this._description,
+      this._forWho,
+      this._category,
+      this._id,
+      this._date,
+      this._vendorId,
+      this._price,
+      this._available,
+      this._photosUrls);
 
-  Product.fromDocumnet(QueryDocumentSnapshot document)
-      : this._id = document.id,
-        this._age = document.data()['age'],
-        this._available = document.data()['available'],
+  Product.fromDocument(document)
+      : this._title = document.data()['title'],
+        this._description = document.data()['description'],
+        this._forWho = document.data()['forWho'],
         this._category = document.data()['category'],
+        this._id = document.id,
         this._date = document.data()['date'],
-        this._gender = document.data()['gender'],
-        this._photos = document.data()['photos'],
-        this._price = document.data()['price'],
-        this._title = document.data()['title'],
-        this._description = document.data()['description'];
+        this._vendorId = document.data()['vendorID'],
+        this._price = document.data()['price'].toDouble(),
+        this._available = document.data()['available'],
+        this._photosUrls = (document.data()['photos'] as List)
+            .map((e) => e.toString())
+            .toList();
 }
